@@ -9,8 +9,9 @@
 UENUM()
 enum SteeringAlgo
 {
-	SEEK     UMETA(DisplayName = "Seek Algo"),
-	FLEE      UMETA(DisplayName = "Flee Algo"),
+	SEEK	  UMETA(DisplayName = "Seek Algo"),
+	FLEE	  UMETA(DisplayName = "Flee Algo"),
+	ARRIVAL   UMETA(DisplayName = "Arrival Algo"),
 	PURSUIT   UMETA(DisplayName = "Pursuit Algo"),
 };
 
@@ -30,28 +31,34 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TEnumAsByte<SteeringAlgo> SteeringAlgo;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "General")
 	float Mass = 10.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "General")
 	float MaxForce = 1.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "General")
 	float MaxSpeed = 10.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "General")
 	FVector Velocity;
 
+	UPROPERTY(EditAnywhere, Category = "Arrival Algo")
+	float SlowingDistance;
+
 	AActor* TargetActor;
-	AActor* PursuitActor;
+	AVehicul* PursuitActor;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	FORCEINLINE FVector GetVelocity() { return Velocity; };
 
 private:
 	FVector Truncate(FVector Vector, float Max);
 	FVector SeekVelocity(FVector Target);
 	FVector FleeVelocity(FVector Target);
+	FVector ArrivalVelocity(FVector Target);
+	FVector PursuitVelocity(AVehicul* Target);
 };

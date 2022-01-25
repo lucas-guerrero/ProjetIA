@@ -24,8 +24,8 @@ void AVehicul::BeginPlay()
 		TArray<AActor*> Vehiculs;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AVehicul::StaticClass(), Vehiculs);
 
-		int32 Index = FMath::RandRange(0, Vehiculs.Num());
-		PursuitActor = Vehiculs[Index];
+		int32 Index = FMath::RandRange(0, Vehiculs.Num()-1);
+		PursuitActor = Cast<AVehicul>(Vehiculs[Index]);
 	}
 	else
 	{
@@ -43,13 +43,11 @@ void AVehicul::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	FVector SteeringDirection;
-	/*
-	if(SteeringAlgo == SteeringAlgo::SEEK) SteeringDirection = SeekVelocity(FVector(100, 0, GetActorLocation().Z));
-	else SteeringDirection = FleeVelocity(FVector(100, 0, GetActorLocation().Z));
-	*/
 
 	if (SteeringAlgo == SteeringAlgo::SEEK) SteeringDirection = SeekVelocity(TargetActor->GetActorLocation());
-	else SteeringDirection = FleeVelocity(TargetActor->GetActorLocation());
+	else if (SteeringAlgo == SteeringAlgo::ARRIVAL) SteeringDirection = ArrivalVelocity(TargetActor->GetActorLocation());
+	else if (SteeringAlgo == SteeringAlgo::FLEE) SteeringDirection = FleeVelocity(TargetActor->GetActorLocation());
+	else SteeringDirection = PursuitVelocity(PursuitActor);
 
 	FVector SteeringForce = Truncate(SteeringDirection, MaxForce);
 	FVector Acceleration = SteeringForce / Mass;
@@ -72,6 +70,19 @@ FVector AVehicul::SeekVelocity(FVector Target)
 	return VelocityDesired - Velocity;
 }
 
+FVector AVehicul::ArrivalVelocity(FVector Target)
+{
+	FVector VectorDist = Target - GetActorLocation();
+	float Distance = VectorDist.Size();
+
+	float RampedSpeed = MaxSpeed * (Distance / SlowingDistance);
+
+	float ClippedSpeed = FMath::Min(RampedSpeed, MaxSpeed);
+
+	FVector VelocityDesired = VectorDist * (ClippedSpeed / Distance);
+	return VelocityDesired - Velocity;
+}
+
 FVector AVehicul::FleeVelocity(FVector Target)
 {
 	FVector VectorDist = Target - GetActorLocation();
@@ -79,6 +90,13 @@ FVector AVehicul::FleeVelocity(FVector Target)
 	VectorDist.Normalize();
 	FVector VelocityDesired = VectorDist * MaxSpeed;
 	return VelocityDesired - Velocity;
+}
+
+FVector AVehicul::PursuitVelocity(AVehicul* Target)
+{
+	FVector FuturTarget = Target->GetVelocity() * 5;
+
+	return SeekVelocity(FuturTarget);
 }
 
 FVector AVehicul::Truncate(FVector Vector, float Max)
