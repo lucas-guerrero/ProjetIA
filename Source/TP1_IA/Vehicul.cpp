@@ -2,6 +2,9 @@
 
 
 #include "Vehicul.h"
+#include "Target.h"
+
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values
 AVehicul::AVehicul()
@@ -16,10 +19,22 @@ void AVehicul::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Velocity = FVector(-100, -100, 0);
-	Mass = 100.f;
-	MaxForce = 10.f;
-	MaxSpeed = 5.f;
+	if (SteeringAlgo == SteeringAlgo::PURSUIT)
+	{
+		TArray<AActor*> Vehiculs;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AVehicul::StaticClass(), Vehiculs);
+
+		int32 Index = FMath::RandRange(0, Vehiculs.Num());
+		PursuitActor = Vehiculs[Index];
+	}
+	else
+	{
+		TArray<AActor*> Targets;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATarget::StaticClass(), Targets);
+
+		int32 Index = FMath::RandRange(0, Targets.Num()-1);
+		TargetActor = Targets[Index];
+	}
 }
 
 // Called every frame
@@ -27,16 +42,40 @@ void AVehicul::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FVector SteeringDirection = SeekVelocity(FVector(100, 0, GetActorLocation().Z));
+	FVector SteeringDirection;
+	/*
+	if(SteeringAlgo == SteeringAlgo::SEEK) SteeringDirection = SeekVelocity(FVector(100, 0, GetActorLocation().Z));
+	else SteeringDirection = FleeVelocity(FVector(100, 0, GetActorLocation().Z));
+	*/
+
+	if (SteeringAlgo == SteeringAlgo::SEEK) SteeringDirection = SeekVelocity(TargetActor->GetActorLocation());
+	else SteeringDirection = FleeVelocity(TargetActor->GetActorLocation());
+
 	FVector SteeringForce = Truncate(SteeringDirection, MaxForce);
 	FVector Acceleration = SteeringForce / Mass;
 	Velocity = Truncate(Velocity + Acceleration, MaxSpeed);
 	SetActorLocation(GetActorLocation() + Velocity);
+
+	/*
+	FVector VNorm = FVector(Velocity.X, Velocity.Y, Velocity.Z);
+	VNorm.Normalize();
+	FRotator Rotation = FRotator(VNorm.X, VNorm.Y, VNorm.Z);
+	SetActorRotation(Rotation);
+	*/
 }
 
 FVector AVehicul::SeekVelocity(FVector Target)
 {
 	FVector VectorDist = Target - GetActorLocation();
+	VectorDist.Normalize();
+	FVector VelocityDesired = VectorDist * MaxSpeed;
+	return VelocityDesired - Velocity;
+}
+
+FVector AVehicul::FleeVelocity(FVector Target)
+{
+	FVector VectorDist = Target - GetActorLocation();
+	VectorDist = -VectorDist;
 	VectorDist.Normalize();
 	FVector VelocityDesired = VectorDist * MaxSpeed;
 	return VelocityDesired - Velocity;

@@ -6,6 +6,14 @@
 #include "GameFramework/Actor.h"
 #include "Vehicul.generated.h"
 
+UENUM()
+enum SteeringAlgo
+{
+	SEEK     UMETA(DisplayName = "Seek Algo"),
+	FLEE      UMETA(DisplayName = "Flee Algo"),
+	PURSUIT   UMETA(DisplayName = "Pursuit Algo"),
+};
+
 UCLASS()
 class TP1_IA_API AVehicul : public AActor
 {
@@ -19,11 +27,23 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	float Mass;
-	float MaxForce;
-	float MaxSpeed;
+	UPROPERTY(EditAnywhere)
+	TEnumAsByte<SteeringAlgo> SteeringAlgo;
 
+	UPROPERTY(EditAnywhere)
+	float Mass = 10.f;
+
+	UPROPERTY(EditAnywhere)
+	float MaxForce = 1.f;
+
+	UPROPERTY(EditAnywhere)
+	float MaxSpeed = 10.f;
+
+	UPROPERTY(EditAnywhere)
 	FVector Velocity;
+
+	AActor* TargetActor;
+	AActor* PursuitActor;
 
 public:	
 	// Called every frame
@@ -33,4 +53,5 @@ public:
 private:
 	FVector Truncate(FVector Vector, float Max);
 	FVector SeekVelocity(FVector Target);
+	FVector FleeVelocity(FVector Target);
 };
