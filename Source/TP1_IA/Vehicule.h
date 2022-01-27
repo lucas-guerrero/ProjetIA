@@ -15,6 +15,11 @@ public:
 	// Sets default values for this actor's properties
 	AVehicule();
 
+	virtual void Tick(float DeltaTime) override;
+
+	FORCEINLINE FVector GetVelocity() { return Velocity; };
+	FVector Truncate(FVector Vector, float Max);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
