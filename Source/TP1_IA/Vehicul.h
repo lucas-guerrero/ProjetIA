@@ -46,8 +46,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Arrival Algo")
 	float SlowingDistance;
 
+	UPROPERTY(EditAnywhere, Category = "Target")
 	AActor* TargetActor;
+
+	UPROPERTY(EditAnywhere, Category = "Pursuit")
 	AVehicul* PursuitActor;
+
+	UPROPERTY(EditAnywhere, Category = "Pursuit")
+	float TurningParameter;
 
 public:	
 	// Called every frame

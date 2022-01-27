@@ -42,6 +42,8 @@ void AVehicul::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("SteeringAlgo: %d"), SteeringAlgo));
+
 	FVector SteeringDirection;
 
 	if (SteeringAlgo == SteeringAlgo::SEEK) SteeringDirection = SeekVelocity(TargetActor->GetActorLocation());
@@ -54,12 +56,7 @@ void AVehicul::Tick(float DeltaTime)
 	Velocity = Truncate(Velocity + Acceleration, MaxSpeed);
 	SetActorLocation(GetActorLocation() + Velocity);
 
-	/*
-	FVector VNorm = FVector(Velocity.X, Velocity.Y, Velocity.Z);
-	VNorm.Normalize();
-	FRotator Rotation = FRotator(VNorm.X, VNorm.Y, VNorm.Z);
-	SetActorRotation(Rotation);
-	*/
+	SetActorRotation(FRotator(Velocity.Rotation()));
 }
 
 FVector AVehicul::SeekVelocity(FVector Target)
@@ -94,9 +91,12 @@ FVector AVehicul::FleeVelocity(FVector Target)
 
 FVector AVehicul::PursuitVelocity(AVehicul* Target)
 {
-	FVector FuturTarget = Target->GetVelocity() * 5;
+	float Distance = (Target->GetActorLocation() - GetActorLocation()).Size();
+	float T = Distance * TurningParameter;
 
-	return SeekVelocity(FuturTarget);
+	FVector FuturTarget = Target->GetVelocity() * T;
+
+	return SeekVelocity(FuturTarget + Target->GetActorLocation());
 }
 
 FVector AVehicul::Truncate(FVector Vector, float Max)
