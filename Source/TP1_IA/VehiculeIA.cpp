@@ -3,6 +3,9 @@
 
 #include "VehiculeIA.h"
 
+
+#include <Kismet/KismetMathLibrary.h>
+
 AVehiculeIA::AVehiculeIA()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -40,7 +43,6 @@ void AVehiculeIA::Tick(float DeltaTime)
 
 FVector AVehiculeIA::SeekVelocity(FVector TargetLocation)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("SEEK"));
 	FVector VectorDist = TargetLocation - GetActorLocation();
 	VectorDist.Normalize();
 	FVector VelocityDesired = VectorDist * MaxSpeed;
@@ -49,7 +51,6 @@ FVector AVehiculeIA::SeekVelocity(FVector TargetLocation)
 
 FVector AVehiculeIA::ArrivalVelocity(FVector TargetLocation)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("ARRIVAL"));
 	FVector VectorDist = TargetLocation - GetActorLocation();
 	float Distance = VectorDist.Size();
 
@@ -63,7 +64,6 @@ FVector AVehiculeIA::ArrivalVelocity(FVector TargetLocation)
 
 FVector AVehiculeIA::FleeVelocity(FVector TargetLocation)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("FLEE"));
 	FVector VectorDist = TargetLocation - GetActorLocation();
 	VectorDist = -VectorDist;
 	VectorDist.Normalize();
@@ -73,17 +73,21 @@ FVector AVehiculeIA::FleeVelocity(FVector TargetLocation)
 
 FVector AVehiculeIA::PursuitVelocity()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("PURSUIT"));
-	float Distance = (Target->GetActorLocation() - GetActorLocation()).Size();
-	float T = Distance * TurningParameter;
-	FVector FuturTarget = Target->GetVelocity() * T;
+	float Dot = FVector::DotProduct(Target->GetVelocity().GetSafeNormal(), (GetActorLocation() - Target->GetActorLocation()).GetSafeNormal());
 
+	float TurningParameter;
+	if (Dot >= 0) TurningParameter = 1 - Dot;
+	else TurningParameter = 1;
+
+	float Distance = (Target->GetActorLocation() - GetActorLocation()).Size();
+	float T = Distance / Velocity.Size() * TurningParameter;
+	FVector FuturTarget = Target->GetVelocity() * T;
 	return SeekVelocity(Target->GetActorLocation() + FuturTarget);
 }
 
 FVector AVehiculeIA::EvadeVelocity(float DeltaTime)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("EVADE"));
+	/*
 	if (Time <= 0)
 	{
 		IsNew = false;
@@ -113,6 +117,9 @@ FVector AVehiculeIA::EvadeVelocity(float DeltaTime)
 	if(IsNew) return FleeVelocity(NewTargetEvade);
 
 	return FleeVelocity(Target->GetActorLocation());
+	*/
+
+	return -PursuitVelocity();
 }
 
 void AVehiculeIA::ChangeAlgo()

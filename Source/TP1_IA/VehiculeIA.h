@@ -42,9 +42,6 @@ protected:
 	AVehicule* Target;
 
 	UPROPERTY(EditAnywhere, Category = "Algorithme")
-	float TurningParameter;
-
-	UPROPERTY(EditAnywhere, Category = "Algorithme")
 	float DistanceChange;
 
 	bool IsNew = false;

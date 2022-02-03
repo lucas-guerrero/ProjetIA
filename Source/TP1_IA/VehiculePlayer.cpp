@@ -35,7 +35,6 @@ void AVehiculePlayer::BindInput()
 
 void AVehiculePlayer::Tick(float DeltaTime)
 {
-	
 	FVector SteeringForce = Truncate(Direction, MaxForce);
 	FVector Acceleration = SteeringForce / Mass;
 	Velocity = Truncate(Velocity + Acceleration, MaxSpeed);
@@ -55,18 +54,10 @@ void AVehiculePlayer::Change()
 
 void AVehiculePlayer::MoveForward(float Value)
 {
-	Direction = FVector(Direction.X + Value, Direction.Y, Direction.Z);
-	/*
-	FVector Location = GetActorLocation();
-	SetActorLocation(FVector(Location.X + Value * MaxSpeed, Location.Y, Location.Z));
-	*/
+	Direction = FVector(Value, Direction.Y, Direction.Z);
 }
 
 void AVehiculePlayer::MoveRight(float Value)
 {
-	Direction = FVector(Direction.X, Direction.Y + Value, Direction.Z);
-	/*
-	FVector Location = GetActorLocation();
-	SetActorLocation(FVector(Location.X, Location.Y + Value * MaxSpeed, Location.Z));
-	*/
+	Direction = FVector(Direction.X, Value, Direction.Z);
 }
