@@ -144,3 +144,20 @@ AlgoUsing AVehiculeIA::IntToEnum()
 		return AlgoUsing::EVADE;
 	}
 }
+
+FText AVehiculeIA::GetNameAlgo()
+{
+	switch (UsingAlgo)
+	{
+	case AlgoUsing::SEEK:
+		return FText::FromString(TEXT("Seek"));
+	case AlgoUsing::FLEE:
+		return FText::FromString(TEXT("Flee"));
+	case AlgoUsing::ARRIVAL:
+		return FText::FromString(TEXT("Arrival"));
+	case AlgoUsing::PURSUIT:
+		return FText::FromString(TEXT("Pursuit"));
+	default:
+		return FText::FromString(TEXT("Evade"));
+	}
+}

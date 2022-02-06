@@ -32,6 +32,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void Change();
+	void Quit();
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+	void MoveUp(float Value);
 };

@@ -3,8 +3,11 @@
 
 #include "VehiculePlayer.h"
 #include "VehiculeIA.h"
+#include "IAPathPlayerController.h"
 
 #include <Components/InputComponent.h>
+#include <Kismet/GameplayStatics.h>
+#include <Kismet/KismetSystemLibrary.h>
 
 AVehiculePlayer::AVehiculePlayer()
 {
@@ -28,6 +31,8 @@ void AVehiculePlayer::BindInput()
 		InputComponent->BindAction("ChangeAlgo", IE_Pressed, this, &AVehiculePlayer::Change);
 		InputComponent->BindAxis("MoveForward", this, &AVehiculePlayer::MoveForward);
 		InputComponent->BindAxis("MoveRight", this, &AVehiculePlayer::MoveRight);
+		InputComponent->BindAxis("MoveUp", this, &AVehiculePlayer::MoveUp);
+		InputComponent->BindAction("Quit", IE_Pressed, this, &AVehiculePlayer::Quit);
 
 		EnableInput(GetWorld()->GetFirstPlayerController());
 	}
@@ -43,12 +48,26 @@ void AVehiculePlayer::Tick(float DeltaTime)
 	SetActorRotation(FRotator(Velocity.Rotation()));
 }
 
+void AVehiculePlayer::Quit()
+{
+	UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, true);
+}
+
 void AVehiculePlayer::Change()
 {
 	AVehiculeIA* IA = Cast<AVehiculeIA>(Vehicule);
 	if (IA)
 	{
 		IA->ChangeAlgo();
+
+		APlayerController* Controller = UGameplayStatics::GetPlayerController(this, 0);
+
+		AIAPathPlayerController* PlayerController = Cast<AIAPathPlayerController>(Controller);
+
+		if (PlayerController != nullptr)
+		{
+			PlayerController->UpdateTextAlgo(IA->GetNameAlgo());
+		}
 	}
 }
 
@@ -60,4 +79,9 @@ void AVehiculePlayer::MoveForward(float Value)
 void AVehiculePlayer::MoveRight(float Value)
 {
 	Direction = FVector(Direction.X, Value, Direction.Z);
+}
+
+void AVehiculePlayer::MoveUp(float Value)
+{
+	Direction = FVector(Direction.X, Direction.Y, Value);
 }

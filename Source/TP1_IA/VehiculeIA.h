@@ -60,4 +60,5 @@ public:
 
 	void ChangeAlgo();
 	AlgoUsing IntToEnum();
+	FText GetNameAlgo();
 };
