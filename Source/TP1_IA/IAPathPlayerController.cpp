@@ -16,6 +16,6 @@ void AIAPathPlayerController::BeginPlay()
 	if (BP_HubWidget != nullptr)
 	{
 		HudWidget = CreateWidget<UHUDUserWidget>(this, BP_HubWidget);
-		HudWidget->AddToViewport();
+		//HudWidget->AddToViewport();
 	}
 }

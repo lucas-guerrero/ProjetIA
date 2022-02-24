@@ -1,0 +1,51 @@
+Size 50
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X     X             X                  X         X
+X  XXXXXXX          X          XXXXXXXXX         X
+X                   X             X              X
+X          XXXXXXXXXX             X      XX      X
+X    0                         XXXXXXXX          X
+X                             X                  X
+X   XXXXXX                    X           XXXXXXXX
+X                             XXXXXXX            X
+X                                                X
+X               XXX                              X
+X                X             XXX               X
+X             XXXXXXXXXX       XXX               X
+X                              XXX      X        X
+X                                       X        X
+X                X                      X        X
+X   X            X         XXXXXXXXXXXXXX    X   X
+X   X            X           X          X    X   X
+XXXXX      XXXXXXX           X          X    X   X
+X   X         X              X          XXXXXXXXXX
+X   X         X              X          X        X
+X   X         X              X                   X
+X          XXXX                                  X
+X             X     XXXXXXXX                     X
+X                   XXXXXXXX                     X
+X                                   X            X
+X                                   X            X
+X              X                    X            X
+XXXXXXXXXXXXXXXX                    X            X
+X     X        X      XXXXXX        X            X
+X   XXX        X      XXXXXX        X            X
+X     X        X      XXXXXX        X            X
+X     X        X                                 X
+X           XXXXXXXX                             X
+X                                                X
+X                                                X
+XXXX                                             X
+X        XXXX             XXXXXXX                X
+X         X                  X                   X
+X         X                  X        XXXXXXXXXXXX
+XXXXXXXXXXX                  X            X      X
+X         X          XXXXXXXXX            X      X
+X         X                  X            XXXX   X
+XXXXXX    X                  X            X      X
+X         X                  X            X      X
+X        XXXXX               X                   X
+X                            X                   X
+X   XXXX            XXX      X     XXXXXX        X
+X            XXX             X       X           X
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
