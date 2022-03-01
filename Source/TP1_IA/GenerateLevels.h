@@ -53,7 +53,7 @@ public:
 
 	void PrintMap();
 
-	FVector PositionInMap(FVector Location);
-	char Get(FVector Location);
+	FIntVector PositionInMap(FVector Location);
+	FVector GetCoordonne(int x, int y);
 	bool IsValid(int x, int y);
 };

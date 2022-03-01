@@ -104,25 +104,19 @@ void AGenerateLevels::GeneratePlayer(int x, int y)
 	}
 }
 
-char AGenerateLevels::Get(FVector Location)
-{
-	int x = Location.X + 1;
-	int y = Location.Y;
-
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("%d : %d"), x, y));
-
-	if (x < 1 || x >= SizeMap) return 'V';
-	if (y < 1 || y >= SizeMap) return 'V';
-	return Map[x][y] == 'X';
-}
-
 bool AGenerateLevels::IsValid(int x, int y)
 {
-	if (Map[x+1][y] == 'X') return false;
+	++x;
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("%d : %d"), x, y));
+
+	if (x < 1 || x >= SizeMap + 1) return false;
+	if (y < 0 || y >= SizeMap) return false;
+
+	if (Map[x][y] == 'X') return false;
 	return true;
 }
 
-FVector AGenerateLevels::PositionInMap(FVector Location)
+FIntVector AGenerateLevels::PositionInMap(FVector Location)
 {
 	FVector AdaptLocation = Location;
 
@@ -131,5 +125,12 @@ FVector AGenerateLevels::PositionInMap(FVector Location)
 
 	AdaptLocation.X *= -1;
 
-	return AdaptLocation;
+	return FIntVector(AdaptLocation);
+}
+
+FVector AGenerateLevels::GetCoordonne(int x, int y)
+{
+	float Decalage = SizeMap / 2 * UnitBlock;
+
+	return FVector(x * UnitBlock - Decalage, y * UnitBlock - Decalage, 0.f);
 }

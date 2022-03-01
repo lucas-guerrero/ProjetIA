@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Vehicule.h"
+#include "VehiculeIA.h"
 #include "VehiculePath.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TP1_IA_API AVehiculePath : public AVehicule
+class TP1_IA_API AVehiculePath : public AVehiculeIA
 {
 	GENERATED_BODY()
 	
@@ -20,13 +20,27 @@ public:
 
 	class AGenerateLevels* Levels;
 
-	FVector Destination;
+	UPROPERTY(EditAnywhere, Category = "Path")
+	float DistanceChangePoint;
+
+	FIntVector Destination;
+	TArray<FIntVector> ListPoint;
+
+	int IndexList;
+
+	bool IsArrival;
+	bool NoDestination;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	void BindInput();
+
+	void GenerateWay();
+	void ChangeTargetOne();
+
+	FVector CastToInt(FIntVector Vector);
 
 public:
 	virtual void Tick(float DeltaTime) override;

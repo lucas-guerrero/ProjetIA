@@ -18,6 +18,10 @@ void AVehiculePath::BeginPlay()
 {
 	Super::BeginPlay();
 
+	IndexList = 0;
+	IsArrival = true;
+	NoDestination = true;
+
 	TArray<AActor*> List;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGenerateLevels::StaticClass(), List);
 
@@ -27,6 +31,8 @@ void AVehiculePath::BeginPlay()
 	}
 
 	BindInput();
+
+	//Destination = GetActorLocation();
 }
 
 void AVehiculePath::BindInput()
@@ -46,11 +52,44 @@ void AVehiculePath::BindInput()
 // Called every frame
 void AVehiculePath::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, Destination.ToString());
+	if (NoDestination) return;
+
+	FVector SteeringDirection;
+
+	FVector TargetPath = CastToInt(ListPoint[IndexList]);
+
+	if (IsArrival) SteeringDirection =  ArrivalVelocity(TargetPath);
+	SteeringDirection = SeekVelocity(TargetPath);
+
+	FVector SteeringForce = Truncate(SteeringDirection, MaxForce);
+	FVector Acceleration = SteeringForce / Mass;
+	Velocity = Truncate(Velocity + Acceleration, MaxSpeed);
+	SetActorLocation(GetActorLocation() + Velocity);
 
 	SetActorRotation(FRotator(Velocity.Rotation()));
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, Destination.ToString());
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Char: %c"), Levels->Get(Destination)));
+}
+
+FVector AVehiculePath::CastToInt(FIntVector Vector)
+{
+	int x = Vector.X;
+	int y = Vector.Y;
+	return FVector(x, y, 0.f);
+}
+
+void AVehiculePath::ChangeTargetOne()
+{
+	if (IsArrival) return;
+
+	FVector TargetPath = CastToInt(ListPoint[IndexList]);
+	float Distance = (TargetPath - GetActorLocation()).Size();
+
+	if (Distance <= DistanceChangePoint) ++IndexList;
+	if (IndexList >= ListPoint.Num())
+	{
+		IsArrival = true;
+		IndexList = ListPoint.Num() - 1;
+	}
 }
 
 void AVehiculePath::Click()
@@ -58,8 +97,17 @@ void AVehiculePath::Click()
 	FHitResult HitResult;
 	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursor(ECollisionChannel::ECC_WorldStatic, false, HitResult);
 
+	FIntVector Coord;
 	if (Levels)
 	{
-		Destination = Levels->PositionInMap(HitResult.Location * 4.75);
+		Coord = Levels->PositionInMap(HitResult.Location * 4.75);
+		if(Levels->IsValid(Coord.X, Coord.Y)) Destination = Coord;
 	}
+	//NoDestination = false;
+	GenerateWay();
+}
+
+void AVehiculePath::GenerateWay()
+{
+	
 }
