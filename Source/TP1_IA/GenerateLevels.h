@@ -52,4 +52,8 @@ public:
 	void GeneratePlayer(int x, int y);
 
 	void PrintMap();
+
+	FVector PositionInMap(FVector Location);
+	char Get(FVector Location);
+	bool IsValid(int x, int y);
 };

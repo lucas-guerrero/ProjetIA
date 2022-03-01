@@ -18,10 +18,18 @@ public:
 	// Sets default values for this actor's properties
 	AVehiculePath();
 
+	class AGenerateLevels* Levels;
+
+	FVector Destination;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void BindInput();
+
 public:
 	virtual void Tick(float DeltaTime) override;
+
+	void Click();
 };
