@@ -1,0 +1,5 @@
+Size 4
+XXXX
+X0 X
+X  X
+XXXX

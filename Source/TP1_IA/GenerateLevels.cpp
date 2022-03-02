@@ -7,6 +7,7 @@
 
 #include <string>
 #include <fstream>
+#include <math.h>
 
 // Sets default values
 AGenerateLevels::AGenerateLevels()
@@ -32,8 +33,8 @@ void AGenerateLevels::BeginPlay()
 
 		File >> Line >> SizeMap;
 
-		int x = SizeMap;
-		int y = SizeMap;
+		int x = 0;
+		int y = 0;
 
 		while (std::getline(File, Line))
 		{
@@ -54,16 +55,15 @@ void AGenerateLevels::BeginPlay()
 					GenerateWall(x, y);
 					break;
 				case '0':
-					PositionDepart = FIntVector(x, y, 0.f);
 					GeneratePlayer(x, y);
 					break;
 				default:
 					break;
 				}
 				Row.Add(Tile);
-				y++;
+				++y;
 			}
-			x--;
+			++x;
 			Map.Add(Row);
 		}
 	}
@@ -74,7 +74,7 @@ void AGenerateLevels::BeginPlay()
 
 void AGenerateLevels::PrintMap()
 {
-	int x = 0;
+	int x = -1;
 	int y = 0;
 	for (TArray<struct Tile> Row : Map)
 	{
@@ -94,7 +94,7 @@ void AGenerateLevels::GenerateWall(int x, int y)
 	{
 		float Decalage = SizeMap / 2 * UnitBlock;
 
-		FVector SpawnLocation = FVector(x * UnitBlock - Decalage, y * UnitBlock - Decalage, 0.f);
+		FVector SpawnLocation = FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 0.f);
 		FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
 		GetWorld()->SpawnActor<AWall>(WallClass, SpawnTransform);
 	}
@@ -106,18 +106,20 @@ void AGenerateLevels::GeneratePlayer(int x, int y)
 	{
 		float Decalage = SizeMap / 2 * UnitBlock;
 
-		FVector SpawnLocation = FVector(x * UnitBlock - Decalage, y * UnitBlock - Decalage, 0.f);
+		FVector SpawnLocation = FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 0.f);
 		FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
 		GetWorld()->SpawnActor<AVehicule>(VehiculeClass, SpawnTransform);
+
+		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("Player %d : %d"), x, y));
 	}
 }
 
 bool AGenerateLevels::IsValid(int x, int y)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("%d : %d"), x, y));
-
 	if (x < 1 || x >= SizeMap + 1) return false;
 	if (y < 0 || y >= SizeMap) return false;
+
+	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Valid %d : %d"), x, y));
 
 	if (!Map[x][y].IsWalked) return false;
 	return true;
@@ -125,12 +127,32 @@ bool AGenerateLevels::IsValid(int x, int y)
 
 FIntVector AGenerateLevels::PositionInMap(FVector Location)
 {
+	float Decalage = SizeMap / 2 * UnitBlock;
+	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, Location.ToString());
+
+	FVector AdaptLocation;
+
+	AdaptLocation.X = - (Location.X - Decalage) / UnitBlock;
+	AdaptLocation.Y = (Location.Y + Decalage) / UnitBlock;
+
+	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, AdaptLocation.ToString());
+
+	return FIntVector(AdaptLocation);
+}
+
+FIntVector AGenerateLevels::ClickInPosition(FVector Location)
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, Location.ToString());
+
 	FVector AdaptLocation = Location;
 
-	AdaptLocation.X -= SizeMap/2 + 1;
+	AdaptLocation.X *= -1;
+	AdaptLocation.X += SizeMap/2;
+	++AdaptLocation.X;
+
 	AdaptLocation.Y += SizeMap/2;
 
-	AdaptLocation.X *= -1;
+	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, AdaptLocation.ToString());
 
 	return FIntVector(AdaptLocation);
 }
@@ -139,23 +161,25 @@ FVector AGenerateLevels::GetCoordonne(int x, int y)
 {
 	float Decalage = SizeMap / 2 * UnitBlock;
 
-	return FVector(x * UnitBlock - Decalage, y * UnitBlock - Decalage, 0.f);
+	return FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 0.f);
 }
 
-struct Tile AGenerateLevels::GetTile(int x, int y)
+struct Tile &AGenerateLevels::GetTile(int x, int y)
 {
 	return Map[x][y];
 }
 
 void AGenerateLevels::ClearMapAlgo()
 {
-	for (TArray<struct Tile> Row : Map)
+	for (TArray<struct Tile>& Row : Map)
 	{
-		for (struct Tile Tile : Row)
+		for (struct Tile& Tile : Row)
 		{
-			Tile.CostActual = 0;
+			Tile.CostActual = 50000.f;
 			Tile.PreviousPoint = FIntVector(0, 0, 0);
 			Tile.IsTraitment = false;
+			Tile.IsInList = false;
+			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("Tile Left: CostActual = %f"), Tile.CostActual));
 		}
 	}
 }

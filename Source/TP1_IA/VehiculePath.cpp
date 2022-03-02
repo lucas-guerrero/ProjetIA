@@ -28,7 +28,7 @@ void AVehiculePath::BeginPlay()
 	if (List.Num() > 0)
 	{
 		Levels = Cast<AGenerateLevels>(List[0]);
-		Depart = Levels->PositionDepart;
+		Depart = Levels->PositionInMap(GetActorLocation());
 	}
 
 	BindInput();
@@ -97,25 +97,107 @@ void AVehiculePath::Click()
 	FHitResult HitResult;
 	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursor(ECollisionChannel::ECC_WorldStatic, false, HitResult);
 
-	FIntVector Coord = Levels->PositionInMap(HitResult.Location * 4.75);
-	if(Levels->IsValid(Coord.X, Coord.Y)) Destination = Coord;
+	FVector Click = HitResult.Location * 4.75;
 
+	FIntVector Coord = Levels->ClickInPosition(Click);
+	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Click %d : %d"), Coord.X, Coord.Y));
+	if(Levels->IsValid(Coord.X, Coord.Y)) Destination = Coord;
 	//NoDestination = false;
 	GenerateWay();
 }
 
 void AVehiculePath::GenerateWay()
 {
+	Levels->ClearMapAlgo();
 	bool IsFind = false;
 	TArray<FIntVector> ListAVerif;
 	ListAVerif.Add(Depart);
+	struct Tile &TileDepart = Levels->GetTile(Depart.X, Depart.Y);
+	//TileDepart.IsTraitment = false;
+	TileDepart.CostActual = f(Depart, 0);
 
 	while (ListAVerif.Num() > 0 && !IsFind)
 	{
 		FIntVector Courant = ListAVerif.Top();
 		ListAVerif.RemoveAt(0);
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("%d : %d"), Courant.X, Courant.Y));
+		int x = Courant.X;
+		int y = Courant.Y;
+
+		if (Courant == Destination)
+		{
+			IsFind = true;
+			continue;
+		}
+
+		struct Tile TileCourant = Levels->GetTile(x, y);
+		TileCourant.IsTraitment = true;
+
+		float CostCourant = TileCourant.CostActual;
+
+		struct Tile &TileLeft = Levels->GetTile(x-1, y);
+		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("Tile Left: CostActual = %f"), TileLeft.CostActual));
+		if (!TileLeft.IsTraitment && TileLeft.IsWalked)
+		{
+			FIntVector Pos(x - 1, y, 0);
+			float CostTmp = f(Pos, CostCourant);
+
+			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("Tile Left: CostActual = %f, f = %f"), TileLeft.CostActual, CostTmp));
+
+			if (!TileLeft.IsInList)
+			{
+				TileLeft.IsInList = true;
+				//ListAVerif.Add(Pos);
+			}
+
+			if (TileLeft.CostActual > CostTmp)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("Victoire !!!")));
+				TileLeft.CostActual = CostTmp;
+				TileLeft.PreviousPoint = Courant;
+			}
+
+		}
+
+		struct Tile TileRight = Levels->GetTile(x+1, y);
+		struct Tile TileUp = Levels->GetTile(x, y-1);
+		struct Tile TileDown = Levels->GetTile(x, y+1);
+
+
 	}
+
+	struct Tile TileLeft = Levels->GetTile(Depart.X-1, Depart.Y);
+
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("Tile Left: CostActual = %d"), TileLeft.CostActual));
+	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TileLeft.PreviousPoint.ToString());
+
+	if (TileLeft.IsInList)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("2 ieme VICTOIRE !!!!")));
+	}
+}
+
+bool AVehiculePath::AddToList(int x, int y, float CostCourant, FIntVector PointCourant)
+{
+	bool IsList = false;
+	struct Tile TileLeft = Levels->GetTile(x, y);
+	if (!TileLeft.IsTraitment && TileLeft.IsWalked)
+	{
+		FIntVector Pos(x, y, 0);
+		float CostTmp = f(Pos, CostCourant);
+
+		if (!TileLeft.IsInList)
+		{
+			TileLeft.IsInList = true;
+			IsList = true;
+		}
+
+		if (TileLeft.CostActual > CostTmp)
+		{
+			TileLeft.CostActual = CostTmp;
+			TileLeft.PreviousPoint = PointCourant;
+		}
+	}
+	return IsList;
 }
 
 float AVehiculePath::f(FIntVector Point, float CostCourant)

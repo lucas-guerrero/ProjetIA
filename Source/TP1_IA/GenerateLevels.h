@@ -11,6 +11,7 @@ struct Tile
 	char Letter;
 	bool IsWalked;
 	bool IsTraitment;
+	bool IsInList;
 	float Cost;
 	float CostActual;
 	FIntVector PreviousPoint;
@@ -37,8 +38,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	float UnitBlock;
 
-	FIntVector PositionDepart;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -50,10 +49,11 @@ public:
 	void PrintMap();
 
 	FIntVector PositionInMap(FVector Location);
+	FIntVector ClickInPosition(FVector Location);
 	FVector GetCoordonne(int x, int y);
 	bool IsValid(int x, int y);
 
-	struct Tile GetTile(int x, int y);
+	struct Tile& GetTile(int x, int y);
 
 	void ClearMapAlgo();
 };

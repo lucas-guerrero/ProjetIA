@@ -51,4 +51,6 @@ public:
 private:
 	float f(FIntVector Point, float CostCourant);
 	float Distance(FIntVector Point);
+
+	bool AddToList(int x, int y, float CostCourant, FIntVector PointCourant);
 };
