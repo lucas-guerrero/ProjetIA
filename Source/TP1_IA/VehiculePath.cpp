@@ -28,11 +28,10 @@ void AVehiculePath::BeginPlay()
 	if (List.Num() > 0)
 	{
 		Levels = Cast<AGenerateLevels>(List[0]);
+		Depart = Levels->PositionInMap(GetActorLocation());
 	}
 
 	BindInput();
-
-	//Destination = GetActorLocation();
 }
 
 void AVehiculePath::BindInput()
@@ -57,7 +56,7 @@ void AVehiculePath::Tick(float DeltaTime)
 
 	FVector SteeringDirection;
 
-	FVector TargetPath = CastToInt(ListPoint[IndexList]);
+	FVector TargetPath = ListPoint[IndexList];
 
 	if (IsArrival) SteeringDirection =  ArrivalVelocity(TargetPath);
 	SteeringDirection = SeekVelocity(TargetPath);
@@ -81,7 +80,7 @@ void AVehiculePath::ChangeTargetOne()
 {
 	if (IsArrival) return;
 
-	FVector TargetPath = CastToInt(ListPoint[IndexList]);
+	FVector TargetPath = ListPoint[IndexList];
 	float Distance = (TargetPath - GetActorLocation()).Size();
 
 	if (Distance <= DistanceChangePoint) ++IndexList;
@@ -109,5 +108,10 @@ void AVehiculePath::Click()
 
 void AVehiculePath::GenerateWay()
 {
-	
+	if (!Levels) return;
+
+	Levels->ClearMapAlgo();
+
+
 }
+

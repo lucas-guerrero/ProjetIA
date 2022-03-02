@@ -23,8 +23,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Path")
 	float DistanceChangePoint;
 
+	FIntVector Depart;
 	FIntVector Destination;
-	TArray<FIntVector> ListPoint;
+	TArray<FVector> ListPoint;
 
 	int IndexList;
 
@@ -46,4 +47,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void Click();
+
+private:
+	float f(FIntVector Point);
+	float Distance(FIntVector Point);
 };

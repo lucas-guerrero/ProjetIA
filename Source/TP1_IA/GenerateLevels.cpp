@@ -37,14 +37,20 @@ void AGenerateLevels::BeginPlay()
 
 		while (std::getline(File, Line))
 		{
-			TArray<char> Row;
+			TArray<struct Tile> Row;
 			y = 0;
 			for (char c : Line)
 			{
-				Row.Add(c);
+				struct Tile Tile;
+				Tile.Letter = c;
+				Tile.IsTraitment = false;
+				Tile.IsWalked = true;
+				Tile.Cost = 1;
+				Tile.CostActual = 0;
 				switch (c)
 				{
 				case 'X':
+					Tile.IsWalked = false;
 					GenerateWall(x, y);
 					break;
 				case '0':
@@ -53,6 +59,7 @@ void AGenerateLevels::BeginPlay()
 				default:
 					break;
 				}
+				Row.Add(Tile);
 				y++;
 			}
 			x--;
@@ -68,12 +75,12 @@ void AGenerateLevels::PrintMap()
 {
 	int x = 0;
 	int y = 0;
-	for (TArray<char> Row : Map)
+	for (TArray<struct Tile> Row : Map)
 	{
 		y = 0;
-		for (char c : Row)
+		for (struct Tile c : Row)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("%c : %d, %d"), c, x, y);
+			UE_LOG(LogTemp, Warning, TEXT("%c : %d, %d"), c.Letter, x, y);
 			++y;
 		}
 		++x;
@@ -106,13 +113,12 @@ void AGenerateLevels::GeneratePlayer(int x, int y)
 
 bool AGenerateLevels::IsValid(int x, int y)
 {
-	++x;
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("%d : %d"), x, y));
+	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("%d : %d"), x, y));
 
 	if (x < 1 || x >= SizeMap + 1) return false;
 	if (y < 0 || y >= SizeMap) return false;
 
-	if (Map[x][y] == 'X') return false;
+	if (!Map[x][y].IsWalked) return false;
 	return true;
 }
 
@@ -120,7 +126,7 @@ FIntVector AGenerateLevels::PositionInMap(FVector Location)
 {
 	FVector AdaptLocation = Location;
 
-	AdaptLocation.X -= SizeMap/2;
+	AdaptLocation.X -= SizeMap/2 + 1;
 	AdaptLocation.Y += SizeMap/2;
 
 	AdaptLocation.X *= -1;
@@ -133,4 +139,22 @@ FVector AGenerateLevels::GetCoordonne(int x, int y)
 	float Decalage = SizeMap / 2 * UnitBlock;
 
 	return FVector(x * UnitBlock - Decalage, y * UnitBlock - Decalage, 0.f);
+}
+
+struct Tile AGenerateLevels::GetTile(int x, int y)
+{
+	return Map[x][y];
+}
+
+void AGenerateLevels::ClearMapAlgo()
+{
+	for (TArray<struct Tile> Row : Map)
+	{
+		for (struct Tile Tile : Row)
+		{
+			Tile.CostActual = 0;
+			Tile.PreviousPoint = FIntVector(0, 0, 0);
+			Tile.IsTraitment = false;
+		}
+	}
 }

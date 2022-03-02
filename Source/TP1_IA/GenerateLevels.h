@@ -6,20 +6,14 @@
 #include "GameFramework/Actor.h"
 #include "GenerateLevels.generated.h"
 
-struct Node
+struct Tile
 {
-	int x, y;
-};
-
-struct Arc
-{
-	struct Node *p1, *p2;
-};
-
-struct Graph
-{
-	TArray<struct Node*> ListNodes;
-	TArray<struct Arc*> ListArcs;
+	char Letter;
+	bool IsWalked;
+	bool IsTraitment;
+	float Cost;
+	float CostActual;
+	FIntVector PreviousPoint;
 };
 
 UCLASS()
@@ -31,7 +25,7 @@ public:
 	// Sets default values for this actor's properties
 	AGenerateLevels();
 
-	TArray<TArray<char>> Map;
+	TArray<TArray<struct Tile>> Map;
 	int SizeMap;
 
 	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly)
@@ -56,4 +50,8 @@ public:
 	FIntVector PositionInMap(FVector Location);
 	FVector GetCoordonne(int x, int y);
 	bool IsValid(int x, int y);
+
+	struct Tile GetTile(int x, int y);
+
+	void ClearMapAlgo();
 };
