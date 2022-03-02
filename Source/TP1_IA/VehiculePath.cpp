@@ -28,7 +28,7 @@ void AVehiculePath::BeginPlay()
 	if (List.Num() > 0)
 	{
 		Levels = Cast<AGenerateLevels>(List[0]);
-		Depart = Levels->PositionInMap(GetActorLocation());
+		Depart = Levels->PositionDepart;
 	}
 
 	BindInput();
@@ -93,25 +93,49 @@ void AVehiculePath::ChangeTargetOne()
 
 void AVehiculePath::Click()
 {
+	if (!Levels) return;
 	FHitResult HitResult;
 	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursor(ECollisionChannel::ECC_WorldStatic, false, HitResult);
 
-	FIntVector Coord;
-	if (Levels)
-	{
-		Coord = Levels->PositionInMap(HitResult.Location * 4.75);
-		if(Levels->IsValid(Coord.X, Coord.Y)) Destination = Coord;
-	}
+	FIntVector Coord = Levels->PositionInMap(HitResult.Location * 4.75);
+	if(Levels->IsValid(Coord.X, Coord.Y)) Destination = Coord;
+
 	//NoDestination = false;
 	GenerateWay();
 }
 
 void AVehiculePath::GenerateWay()
 {
-	if (!Levels) return;
+	bool IsFind = false;
+	TArray<FIntVector> ListAVerif;
+	ListAVerif.Add(Depart);
 
-	Levels->ClearMapAlgo();
-
-
+	while (ListAVerif.Num() > 0 && !IsFind)
+	{
+		FIntVector Courant = ListAVerif.Top();
+		ListAVerif.RemoveAt(0);
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("%d : %d"), Courant.X, Courant.Y));
+	}
 }
 
+float AVehiculePath::f(FIntVector Point, float CostCourant)
+{
+	struct Tile TileCourant = Levels->GetTile(Point.X, Point.Y);
+
+	float DistanceTile = Distance(Point);
+
+	float G = TileCourant.Cost + CostCourant;
+
+	return G + DistanceTile;
+}
+
+float AVehiculePath::Distance(FIntVector Point)
+{
+	int XDest = Destination.X;
+	int YDest = Destination.Y;
+
+	int XPoint = Point.X;
+	int YPoint = Point.Y;
+
+	return abs(XDest - XPoint) + abs(YDest - YPoint);
+}

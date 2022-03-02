@@ -54,6 +54,7 @@ void AGenerateLevels::BeginPlay()
 					GenerateWall(x, y);
 					break;
 				case '0':
+					PositionDepart = FIntVector(x, y, 0.f);
 					GeneratePlayer(x, y);
 					break;
 				default:

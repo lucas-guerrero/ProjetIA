@@ -49,6 +49,6 @@ public:
 	void Click();
 
 private:
-	float f(FIntVector Point);
+	float f(FIntVector Point, float CostCourant);
 	float Distance(FIntVector Point);
 };
