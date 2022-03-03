@@ -23,14 +23,23 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Path")
 	float DistanceChangePoint;
 
+	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly)
+	TSubclassOf<class ADestination> DestinationClass;
+
 	FIntVector Depart;
 	FIntVector Destination;
+	FIntVector DestinationEnCours;
+
 	TArray<FVector> ListPoint;
+
+	TArray<TArray<FVector>> ListOtherPoint;
 
 	int IndexList;
 
 	bool IsArrival;
 	bool NoDestination;
+
+	bool IsMoving;
 
 protected:
 	// Called when the game starts or when spawned
@@ -47,6 +56,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void Click();
+	void SwapWay();
 
 private:
 	float f(FIntVector Point, float CostCourant);
@@ -55,4 +65,9 @@ private:
 	bool CompareFIntVector(const FIntVector& A, const FIntVector& B);
 
 	void AddWayInParcour();
+	bool AddToList(int x, int y, float CostCourant, FIntVector Courant);
+
+	void ReloadNewWay();
+
+	void GenerateDestination(FIntVector Location);
 };

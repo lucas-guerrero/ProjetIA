@@ -107,7 +107,7 @@ void AGenerateLevels::GeneratePlayer(int x, int y)
 	{
 		float Decalage = SizeMap / 2 * UnitBlock;
 
-		FVector SpawnLocation = FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 0.f);
+		FVector SpawnLocation = FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 50.f);
 		FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
 		GetWorld()->SpawnActor<AVehicule>(VehiculeClass, SpawnTransform);
 
@@ -162,7 +162,7 @@ FVector AGenerateLevels::GetCoordonne(int x, int y)
 {
 	float Decalage = SizeMap / 2 * UnitBlock;
 
-	return FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 0.f);
+	return FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 50.f);
 }
 
 struct Tile &AGenerateLevels::GetTile(int x, int y)
