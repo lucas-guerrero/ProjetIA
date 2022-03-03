@@ -14,6 +14,7 @@ struct Tile
 	bool IsInList;
 	float Cost;
 	float CostActual;
+	float FActual;
 	FIntVector PreviousPoint;
 };
 

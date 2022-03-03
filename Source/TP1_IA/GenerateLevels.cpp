@@ -82,6 +82,7 @@ void AGenerateLevels::PrintMap()
 		for (struct Tile c : Row)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("%c : %d, %d"), c.Letter, x, y);
+			if(c.IsWalked) UE_LOG(LogTemp, Warning, TEXT("\t - IsWalk"));
 			++y;
 		}
 		++x;
@@ -175,7 +176,8 @@ void AGenerateLevels::ClearMapAlgo()
 	{
 		for (struct Tile& Tile : Row)
 		{
-			Tile.CostActual = 50000.f;
+			Tile.CostActual = 0.f;
+			Tile.FActual = INFINITY;
 			Tile.PreviousPoint = FIntVector(0, 0, 0);
 			Tile.IsTraitment = false;
 			Tile.IsInList = false;

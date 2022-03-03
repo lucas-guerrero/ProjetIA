@@ -52,5 +52,7 @@ private:
 	float f(FIntVector Point, float CostCourant);
 	float Distance(FIntVector Point);
 
-	bool AddToList(int x, int y, float CostCourant, FIntVector PointCourant);
+	bool CompareFIntVector(const FIntVector& A, const FIntVector& B);
+
+	void AddWayInParcour();
 };
