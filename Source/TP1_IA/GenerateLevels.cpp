@@ -107,7 +107,7 @@ void AGenerateLevels::GeneratePlayer(int x, int y)
 	{
 		float Decalage = SizeMap / 2 * UnitBlock;
 
-		FVector SpawnLocation = FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 50.f);
+		FVector SpawnLocation = FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 0.f);
 		FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
 		GetWorld()->SpawnActor<AVehicule>(VehiculeClass, SpawnTransform);
 
