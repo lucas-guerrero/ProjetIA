@@ -124,6 +124,8 @@ void AVehiculePath::GenerateDestination(FIntVector Location)
 	LocationWorld.Z = 0.f;
 	FTransform SpawnTransform(GetActorRotation(), LocationWorld);
 	GetWorld()->SpawnActor<ADestination>(DestinationClass, SpawnTransform);
+
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Spawn"));
 }
 
 void AVehiculePath::GenerateWay()
