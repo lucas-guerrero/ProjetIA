@@ -26,6 +26,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly)
 	TSubclassOf<class ADestination> DestinationClass;
 
+	FIntVector Start;
 	FIntVector Depart;
 	FIntVector Destination;
 	FIntVector DestinationEnCours;
@@ -35,6 +36,9 @@ public:
 	TArray<TArray<FVector>> ListOtherPoint;
 
 	int IndexList;
+
+	bool IsCircuit;
+	bool IsStart;
 
 	bool IsArrival;
 	bool NoDestination;
@@ -49,6 +53,7 @@ protected:
 
 	void GenerateWay();
 	void ChangeTargetOne();
+	void GestionWhole(FVector TargetPath);
 
 	FVector CastToInt(FIntVector Vector);
 

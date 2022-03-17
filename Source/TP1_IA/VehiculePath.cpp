@@ -19,6 +19,9 @@ void AVehiculePath::BeginPlay()
 {
 	Super::BeginPlay();
 
+	IsCircuit = false;
+	IsStart = false;
+
 	IndexList = 0;
 	IsArrival = false;
 	NoDestination = true;
@@ -30,6 +33,7 @@ void AVehiculePath::BeginPlay()
 	{
 		Levels = Cast<AGenerateLevels>(List[0]);
 		Depart = Levels->PositionInMap(GetActorLocation());
+		Start = Depart;
 	}
 
 	BindInput();
@@ -53,6 +57,8 @@ void AVehiculePath::BindInput()
 void AVehiculePath::Tick(float DeltaTime)
 {
 	if (NoDestination) return;
+
+	if (IsCircuit && !IsStart) return;
 
 	ChangeTargetOne();
 
@@ -90,11 +96,29 @@ void AVehiculePath::ChangeTargetOne()
 	FVector TargetPath = ListPoint[IndexList];
 	float Distance = (TargetPath - GetActorLocation()).Size();
 
-	if (Distance <= DistanceChangePoint) ++IndexList;
+	if (Distance <= DistanceChangePoint)
+	{
+		GestionWhole(TargetPath);
+		++IndexList;
+	}
 	if (IndexList >= ListPoint.Num())
 	{
 		IsArrival = true;
 		IndexList = ListPoint.Num() - 1;
+	}
+}
+
+void AVehiculePath::GestionWhole(FVector TargetPath)
+{
+	if (!Levels) return;
+	FIntVector Point = Levels->PositionInMap(TargetPath);
+	
+
+	struct Tile &Tile = Levels->GetTile(Point.X, Point.Y);
+	if (Tile.IsWhole)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Trou !!!!"));
+		Tile.IsWalked = false;
 	}
 }
 
@@ -169,8 +193,8 @@ void AVehiculePath::GenerateWay()
 
 
 		ListAVerif.Sort([this](const FIntVector& A, const FIntVector& B) {
-			struct Tile TileA = Levels->GetTile(A.X, A.Y);
-			struct Tile TileB = Levels->GetTile(B.X, B.Y);
+			struct Tile& TileA = Levels->GetTile(A.X, A.Y);
+			struct Tile& TileB = Levels->GetTile(B.X, B.Y);
 
 			return TileA.FActual < TileB.FActual;
 		});

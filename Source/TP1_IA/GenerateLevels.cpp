@@ -3,7 +3,9 @@
 
 #include "GenerateLevels.h"
 #include "Wall.h"
+#include "Whole.h"
 #include "Vehicule.h"
+#include "Ground.h"
 
 #include <string>
 #include <fstream>
@@ -45,6 +47,7 @@ void AGenerateLevels::BeginPlay()
 				struct Tile Tile;
 				Tile.Letter = c;
 				Tile.IsTraitment = false;
+				Tile.IsWhole = false;
 				Tile.IsWalked = true;
 				Tile.Cost = 1;
 				Tile.CostActual = 0;
@@ -56,8 +59,14 @@ void AGenerateLevels::BeginPlay()
 					break;
 				case '0':
 					GeneratePlayer(x, y);
+					GenerateGround(x, y);
+					break;
+				case '1':
+					Tile.IsWhole = true;
+					GenerateWhole(x, y);
 					break;
 				default:
+					GenerateGround(x, y);
 					break;
 				}
 				Row.Add(Tile);
@@ -68,51 +77,62 @@ void AGenerateLevels::BeginPlay()
 		}
 	}
 	File.close();
-
-	PrintMap();
 }
 
-void AGenerateLevels::PrintMap()
+AActor* AGenerateLevels::GenerateWall(int x, int y)
 {
-	int x = -1;
-	int y = 0;
-	for (TArray<struct Tile> Row : Map)
-	{
-		y = 0;
-		for (struct Tile c : Row)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%c : %d, %d"), c.Letter, x, y);
-			if(c.IsWalked) UE_LOG(LogTemp, Warning, TEXT("\t - IsWalk"));
-			++y;
-		}
-		++x;
-	}
-}
-
-void AGenerateLevels::GenerateWall(int x, int y)
-{
+	AActor* Actor = nullptr;
 	if (WallClass)
 	{
 		float Decalage = SizeMap / 2 * UnitBlock;
 
 		FVector SpawnLocation = FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 0.f);
 		FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
-		GetWorld()->SpawnActor<AWall>(WallClass, SpawnTransform);
+		Actor = GetWorld()->SpawnActor<AWall>(WallClass, SpawnTransform);
 	}
+	return Actor;
 }
 
-void AGenerateLevels::GeneratePlayer(int x, int y)
+AActor* AGenerateLevels::GeneratePlayer(int x, int y)
 {
+	AActor* Actor = nullptr;
 	if (VehiculeClass)
 	{
 		float Decalage = SizeMap / 2 * UnitBlock;
 
 		FVector SpawnLocation = FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 0.f);
 		FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
-		GetWorld()->SpawnActor<AVehicule>(VehiculeClass, SpawnTransform);
-
-		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("Player %d : %d"), x, y));
+		Actor = GetWorld()->SpawnActor<AVehicule>(VehiculeClass, SpawnTransform);
 	}
+	return Actor;
+}
+
+AActor* AGenerateLevels::GenerateWhole(int x, int y)
+{
+	AActor* Actor = nullptr;
+	if (WholeClass)
+	{
+		float Decalage = SizeMap / 2 * UnitBlock;
+
+		FVector SpawnLocation = FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 0.f);
+		FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
+		Actor = GetWorld()->SpawnActor<AWhole>(WholeClass, SpawnTransform);
+	}
+	return Actor;
+}
+
+AActor* AGenerateLevels::GenerateGround(int x, int y)
+{
+	AActor* Actor = nullptr;
+	if (GroundClass)
+	{
+		float Decalage = SizeMap / 2 * UnitBlock;
+
+		FVector SpawnLocation = FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 0.f);
+		FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
+		Actor = GetWorld()->SpawnActor<AGround>(GroundClass, SpawnTransform);
+	}
+	return Actor;
 }
 
 bool AGenerateLevels::IsValid(int x, int y)
@@ -162,7 +182,7 @@ FVector AGenerateLevels::GetCoordonne(int x, int y)
 {
 	float Decalage = SizeMap / 2 * UnitBlock;
 
-	return FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 50.f);
+	return FVector(-x * UnitBlock + Decalage, y * UnitBlock - Decalage, 0.f);
 }
 
 struct Tile &AGenerateLevels::GetTile(int x, int y)

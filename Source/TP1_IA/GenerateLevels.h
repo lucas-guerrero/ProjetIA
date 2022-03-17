@@ -12,10 +12,12 @@ struct Tile
 	bool IsWalked;
 	bool IsTraitment;
 	bool IsInList;
+	bool IsWhole;
 	float Cost;
 	float CostActual;
 	float FActual;
 	FIntVector PreviousPoint;
+	AActor *Actor;
 };
 
 UCLASS()
@@ -36,6 +38,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly)
 	TSubclassOf<class AVehicule> VehiculeClass;
 
+	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly)
+	TSubclassOf<class AWhole> WholeClass;
+
+	UPROPERTY(EditDefaultsOnly, BluePrintReadOnly)
+	TSubclassOf<class AGround> GroundClass;
+
 	UPROPERTY(EditAnywhere)
 	float UnitBlock;
 
@@ -44,8 +52,10 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	void GenerateWall(int x, int y);
-	void GeneratePlayer(int x, int y);
+	AActor* GenerateWall(int x, int y);
+	AActor* GeneratePlayer(int x, int y);
+	AActor* GenerateWhole(int x, int y);
+	AActor* GenerateGround(int x, int y);
 
 	void PrintMap();
 

@@ -5,36 +5,36 @@ X  XXXXXXX          X          XXXXXXXXX         X
 X                   X             X              X
 X          XXXXXXXXXX             X      XX      X
 X                              XXXXXXXX          X
-X    0                        X                  X
+X               0             X                  X
 X   XXXXXX                    X           XXXXXXXX
 X                             XXXXXXX            X
 X                                                X
-X               XXX                              X
-X                X             XXX               X
-X             XXXXXXXXXX       XXX               X
+X               111                              X
+X               111            XXX               X
+X     XXXX      111            XXX               X
 X                              XXX      X        X
 X                                       X        X
 X                X                      X        X
 X   X            X         XXXXXXXXXXXXXX    X   X
-X   X            X           X          X    X   X
-XXXXX      XXXXXXX           X          X    X   X
-X   X         X              X          XXXXXXXXXX
+X   X            X           X   111    X    X   X
+XXXXX      XXXXXXX           X   111    X    X   X
+X   X         X 111111       X   111    XXXXXXXXXX
 X   X         X              X          X        X
 X   X         X              X                   X
 X          XXXX                                  X
-X             X     XXXXXXXX                     X
-X                   XXXXXXXX                     X
+X             X     11111111                     X
+X                   11111111                     X
 X                                   X            X
 X                                   X            X
 X              X                    X            X
 XXXXXXXXXXXXXXXX                    X            X
-X     X        X      XXXXXX        X            X
-X   XXX        X      XXXXXX        X            X
-X     X        X      XXXXXX        X            X
+X     X        X      111111        X            X
+X   XXX        X      111111        X            X
+X     X        X      111111        X            X
 X     X        X                                 X
 X           XXXXXXXX                             X
-X                                                X
-X                                                X
+X                                    1111111     X
+X                                    1111111     X
 XXXX                                             X
 X        XXXX             XXXXXXX                X
 X         X                  X                   X
