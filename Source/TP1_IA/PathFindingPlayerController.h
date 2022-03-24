@@ -13,5 +13,17 @@ UCLASS()
 class TP1_IA_API APathFindingPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+
+public:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UHUDPath> BP_PathWidjet;
+
+	void UpdateAlgo(FText Value);
+
+protected:
+	virtual void BeginPlay() override;
+
+private:
+	UPROPERTY()
+	class UHUDPath* HudPath;
 };

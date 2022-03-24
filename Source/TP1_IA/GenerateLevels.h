@@ -57,10 +57,7 @@ public:
 	AActor* GenerateWhole(int x, int y);
 	AActor* GenerateGround(int x, int y);
 
-	void PrintMap();
-
 	FIntVector PositionInMap(FVector Location);
-	FIntVector ClickInPosition(FVector Location);
 	FVector GetCoordonne(int x, int y);
 	bool IsValid(int x, int y);
 

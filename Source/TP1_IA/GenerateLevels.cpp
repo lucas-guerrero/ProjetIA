@@ -140,40 +140,17 @@ bool AGenerateLevels::IsValid(int x, int y)
 	if (x < 1 || x >= SizeMap + 1) return false;
 	if (y < 0 || y >= SizeMap) return false;
 
-	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("Valid %d : %d"), x, y));
-
-	if (!Map[x][y].IsWalked) return false;
-	return true;
+	return Map[x][y].IsWalked;
 }
 
 FIntVector AGenerateLevels::PositionInMap(FVector Location)
 {
 	float Decalage = SizeMap / 2 * UnitBlock;
-	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, Location.ToString());
 
 	FVector AdaptLocation;
 
 	AdaptLocation.X = - (Location.X - Decalage) / UnitBlock;
 	AdaptLocation.Y = (Location.Y + Decalage) / UnitBlock;
-
-	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, AdaptLocation.ToString());
-
-	return FIntVector(AdaptLocation);
-}
-
-FIntVector AGenerateLevels::ClickInPosition(FVector Location)
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, Location.ToString());
-
-	FVector AdaptLocation = Location;
-
-	AdaptLocation.X *= -1;
-	AdaptLocation.X += SizeMap/2;
-	++AdaptLocation.X;
-
-	AdaptLocation.Y += SizeMap/2;
-
-	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, AdaptLocation.ToString());
 
 	return FIntVector(AdaptLocation);
 }

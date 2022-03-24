@@ -4,6 +4,7 @@
 #include "VehiculePath.h"
 #include "GenerateLevels.h"
 #include "Destination.h"
+#include "PathFindingPlayerController.h"
 
 #include <Components/InputComponent.h>
 #include <Kismet/GameplayStatics.h>
@@ -46,6 +47,8 @@ void AVehiculePath::BindInput()
 	if (InputComponent)
 	{
 		InputComponent->BindAction("MouseClick", IE_Pressed, this, &AVehiculePath::Click);
+		InputComponent->BindAction("Swap", IE_Pressed, this, &AVehiculePath::Swap);
+		InputComponent->BindAction("StartCircuit", IE_Pressed, this, &AVehiculePath::StartCircuit);
 
 		EnableInput(GetWorld()->GetFirstPlayerController());
 	}
@@ -90,17 +93,14 @@ void AVehiculePath::ChangeTargetOne()
 	{
 		FVector NewDest = ListPoint.Top();
 		if ((NewDest - GetActorLocation()).Size() < 10.f) NoDestination = true;
+		if (NewDest == Levels->GetCoordonne(Start.X, Start.Y)) IsStart = false;
 		return;
 	}
 
 	FVector TargetPath = ListPoint[IndexList];
 	float Distance = (TargetPath - GetActorLocation()).Size();
 
-	if (Distance <= DistanceChangePoint)
-	{
-		GestionWhole(TargetPath);
-		++IndexList;
-	}
+	if (Distance <= DistanceChangePoint) ++IndexList;
 	if (IndexList >= ListPoint.Num())
 	{
 		IsArrival = true;
@@ -113,30 +113,73 @@ void AVehiculePath::GestionWhole(FVector TargetPath)
 	if (!Levels) return;
 	FIntVector Point = Levels->PositionInMap(TargetPath);
 	
-
 	struct Tile &Tile = Levels->GetTile(Point.X, Point.Y);
-	if (Tile.IsWhole)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Trou !!!!"));
-		Tile.IsWalked = false;
-	}
+	if (Tile.IsWhole) Tile.IsWalked = false;
 }
 
 void AVehiculePath::Click()
 {
+	if (IsCircuit && IsStart) return;
+
 	if (!Levels) return;
+
 	FHitResult HitResult;
-	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursor(ECollisionChannel::ECC_WorldStatic, false, HitResult);
+	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursor(ECC_Visibility, true, HitResult);
 
-	FVector Click = HitResult.Location * 4.75;
-
-	FIntVector Coord = Levels->ClickInPosition(Click);
-	if(Levels->IsValid(Coord.X, Coord.Y)) Destination = Coord;
-
-	if (!CompareFIntVector(Destination, Depart))
+	if (HitResult.GetActor())
 	{
+		FVector Click = HitResult.GetActor()->GetActorLocation();
+
+		FIntVector Coord = Levels->PositionInMap(Click);
+		if (Levels->IsValid(Coord.X, Coord.Y)) Destination = Coord;
+		
+		if (!CompareFIntVector(Destination, Depart))
+		{
+			GenerateWay();
+			GenerateDestination(Destination);
+		}
+	}
+}
+
+void AVehiculePath::Swap()
+{
+	if (IsCircuit && IsStart) return;
+	if (!NoDestination) return;
+
+	if (IsCircuit && ListOtherPoint.Num() > 0) return;
+
+	IsCircuit = !IsCircuit;
+
+	APathFindingPlayerController* PlayerController = Cast<APathFindingPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+
+	if (PlayerController)
+	{
+		FText Text;
+		if (IsCircuit) Text = FText::FromString(TEXT("Circuit"));
+		else Text = FText::FromString(TEXT("Way"));
+
+		PlayerController->UpdateAlgo(Text);
+	}
+
+	if (IsCircuit) Start = Depart;
+}
+
+void AVehiculePath::StartCircuit()
+{
+	if (!NoDestination) return;
+
+	if (!IsCircuit) return;
+	if (IsStart) return;
+
+	if (ListOtherPoint.Num() <= 0) return;
+
+	if (!CompareFIntVector(Start, Depart))
+	{
+		IsStart = true;
+		Destination = Start;
 		GenerateWay();
-		GenerateDestination(Destination);
+		GenerateDestination(Start);
+		ReloadNewWay();
 	}
 }
 
@@ -148,8 +191,6 @@ void AVehiculePath::GenerateDestination(FIntVector Location)
 	LocationWorld.Z = 0.f;
 	FTransform SpawnTransform(GetActorRotation(), LocationWorld);
 	GetWorld()->SpawnActor<ADestination>(DestinationClass, SpawnTransform);
-
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Spawn"));
 }
 
 void AVehiculePath::GenerateWay()
@@ -240,17 +281,24 @@ void AVehiculePath::AddWayInParcour()
 	while (!CompareFIntVector(Depart, TmpPoint))
 	{
 		FVector LocationPoint = Levels->GetCoordonne(TmpPoint.X, TmpPoint.Y);
+		GestionWhole(LocationPoint);
+
 		ListTmp.Insert(LocationPoint, 0);
 
 		TmpPoint = Levels->GetTile(TmpPoint.X, TmpPoint.Y).PreviousPoint;
 	}
 
-	if (NoDestination)
+	if(IsCircuit) ListOtherPoint.Add(ListTmp);
+
+	else
 	{
-		ListPoint = ListTmp;
-		ReloadNewWay();
+		if (NoDestination)
+		{
+			ListPoint = ListTmp;
+			ReloadNewWay();
+		}
+		else ListOtherPoint.Add(ListTmp);
 	}
-	else ListOtherPoint.Add(ListTmp);
 
 	Depart = Destination;
 }

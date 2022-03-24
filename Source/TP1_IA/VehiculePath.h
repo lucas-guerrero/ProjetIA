@@ -43,8 +43,6 @@ public:
 	bool IsArrival;
 	bool NoDestination;
 
-	bool IsMoving;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -61,6 +59,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void Click();
+	void Swap();
+	void StartCircuit();
+
 	void SwapWay();
 
 private:
